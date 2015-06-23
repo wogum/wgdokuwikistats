@@ -73,7 +73,7 @@ class admin_plugin_wgdokuwikistats extends DokuWiki_Admin_Plugin
     if(!empty($this->user))
       $this->where .= ' AND user='.$this->db->quote($this->user);
     if(!empty($this->ip))
-      $this->where .= ' AND ip='.$this->db->quote($this->ip);
+      $this->where .= ' AND ip LIKE '.$this->db->quote($this->ip.'%');
     }
 
   /**
@@ -107,7 +107,7 @@ class admin_plugin_wgdokuwikistats extends DokuWiki_Admin_Plugin
       $this->getSelectInput('wgact',$sql,$this->action);
       $sql='SELECT DISTINCT(user) FROM wikilog ORDER BY 1 LIMIT '.$limit;
       $this->getSelectInput('wguser',$sql,$this->user);
-      $sql='SELECT DISTINCT(ip) FROM wikilog ORDER BY 1 LIMIT '.$limit;
+      $sql='SELECT DISTINCT(SUBSTR(ip,1,19)) FROM wikilog ORDER BY 1 LIMIT '.$limit;
       $this->getSelectInput('wgip',$sql,$this->ip);
 
       print('<br />'.PHP_EOL);
@@ -122,8 +122,8 @@ class admin_plugin_wgdokuwikistats extends DokuWiki_Admin_Plugin
       $limit = intval($this->getConf('wgstats'.$val));
       if($limit>0)
         {
-        if($val=='ip') $val='SUBSTR(ip,1,19)';
         print('<div class="wgleft"><h2>'.$this->getLang('stats'.$val).'</h2>'.PHP_EOL);
+        if($val=='ip') $val='SUBSTR(ip,1,19)';
         $sql="SELECT $val, COUNT(*) AS count FROM wikilog $this->where GROUP BY $val ORDER BY $sort LIMIT $limit";
         $this->getSQLTable($sql);
         print('</div>'.PHP_EOL);
