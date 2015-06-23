@@ -49,6 +49,18 @@ class action_plugin_wgdokuwikistats extends DokuWiki_Action_Plugin
     if($_SERVER['REQUEST_METHOD']!='GET' && $_SERVER['REQUEST_METHOD']!='POST') return;
 
     $agent = $_SERVER['HTTP_USER_AGENT'];
+    $ip = $_SERVER['REMOTE_ADDR'];
+    if(substr_count($ip,':')>0) //IPv6 -> long format IPv6
+      {
+      if(strpos($ip,'::')!==false)
+        $ip=str_replace('::', str_repeat(':0', 8-substr_count($ip,':')).':', $ip);
+      if(strpos($ip,':')===0 $ip='0'.$ip;
+      $parts = explode(':',$ip);
+      for($i=0; $i<8; $i++)
+        while(strlen($parts[$i])<4)
+          $parts[$i]='0'.$parts[$i];
+      $ip=implode(':',$parts);
+      }
     $system = $this->db->quote($this->getSystemName($agent));
     $browser = $this->db->quote($this->getBrowserName($agent));
     if(in_array($ACT,array('admin','login','logout','profile','register','resendpwd','index','recent','search','check')))
@@ -68,7 +80,7 @@ class action_plugin_wgdokuwikistats extends DokuWiki_Action_Plugin
     //save
     $sql = 'INSERT INTO wikilog(page,action,user,ip,time,system,browser) VALUES(';
     $sql .= $page.','.$action.','.$user.',';
-    $sql .= $this->db->quote($_SERVER['REMOTE_ADDR']).",'".date('Y-m-d H:i:s')."',";
+    $sql .= $this->db->quote($ip).",'".date('Y-m-d H:i:s')."',";
     $sql .= $system.','.$browser.");";
     $this->db->exec($sql);
     }
@@ -109,7 +121,7 @@ class action_plugin_wgdokuwikistats extends DokuWiki_Action_Plugin
     else if(strpos($agent,'Android')>0) $system='Android';
     else if(strpos($agent,'iPhone')>0) $system='iPhone Mac OS';
     else if(strpos($agent,'iPod')>0) $system='iPod Mac OS';
-    else if(strpos($agent,'Windows NT 6.4')>0) $system='Windows 10';
+    else if(strpos($agent,'Windows NT 10')>0) $system='Windows 10';
     else if(strpos($agent,'Windows NT 6.3')>0) $system='Windows 8.1';
     else if(strpos($agent,'Windows NT 6.2')>0) $system='Windows 8';
     else if(strpos($agent,'Windows NT 6.1')>0) $system='Windows 7';
@@ -139,7 +151,12 @@ class action_plugin_wgdokuwikistats extends DokuWiki_Action_Plugin
    */
   function getBrowserName($agent)
     {
-    if(strpos($agent,'Firefox')>0)
+    if(strpos($agent,'Edge')>0)
+      {
+      $browser = 'Edge ';
+      if(preg_match('/Edge.([0-9]+)/i',$agent,$matches)) $browser .= $matches[1];
+      }
+    else if(strpos($agent,'Firefox')>0)
       {
       $browser = 'Firefox ';
       if(preg_match('/Firefox.([0-9]+)/i',$agent,$matches)) $browser .= $matches[1];
