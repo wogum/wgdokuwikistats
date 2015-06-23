@@ -1,0 +1,9 @@
+base wgdokuwikistats
+author Wojciech Guminski
+email wogum@poczta.fm
+date 2014-10-30
+name DokuWiki Pages Statistics
+desc Statistics of pages visits
+url http://wiki.guminski.net
+
+
