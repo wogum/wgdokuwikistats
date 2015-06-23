@@ -54,7 +54,7 @@ class action_plugin_wgdokuwikistats extends DokuWiki_Action_Plugin
       {
       if(strpos($ip,'::')!==false)
         $ip=str_replace('::', str_repeat(':0', 8-substr_count($ip,':')).':', $ip);
-      if(strpos($ip,':')===0 $ip='0'.$ip;
+      if(strpos($ip,':')===0) $ip='0'.$ip;
       $parts = explode(':',$ip);
       for($i=0; $i<8; $i++)
         while(strlen($parts[$i])<4)

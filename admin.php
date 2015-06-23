@@ -122,6 +122,7 @@ class admin_plugin_wgdokuwikistats extends DokuWiki_Admin_Plugin
       $limit = intval($this->getConf('wgstats'.$val));
       if($limit>0)
         {
+        if($val=='ip') $val='SUBSTR(ip,1,19)';
         print('<div class="wgleft"><h2>'.$this->getLang('stats'.$val).'</h2>'.PHP_EOL);
         $sql="SELECT $val, COUNT(*) AS count FROM wikilog $this->where GROUP BY $val ORDER BY $sort LIMIT $limit";
         $this->getSQLTable($sql);
