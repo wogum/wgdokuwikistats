@@ -107,7 +107,7 @@ class admin_plugin_wgdokuwikistats extends DokuWiki_Admin_Plugin
       $this->getSelectInput('wgact',$sql,$this->action);
       $sql='SELECT DISTINCT(user) FROM wikilog ORDER BY 1 LIMIT '.$limit;
       $this->getSelectInput('wguser',$sql,$this->user);
-      $sql='SELECT DISTINCT(SUBSTR(ip,1,19)) FROM wikilog ORDER BY 1 LIMIT '.$limit;
+      $sql='SELECT DISTINCT(SUBSTR(ip,1,20)) FROM wikilog ORDER BY 1 LIMIT '.$limit;
       $this->getSelectInput('wgip',$sql,$this->ip);
 
       print('<br />'.PHP_EOL);
@@ -123,7 +123,7 @@ class admin_plugin_wgdokuwikistats extends DokuWiki_Admin_Plugin
       if($limit>0)
         {
         print('<div class="wgleft"><h2>'.$this->getLang('stats'.$val).'</h2>'.PHP_EOL);
-        if($val=='ip') $val='SUBSTR(ip,1,19)';
+        if($val=='ip') $val='SUBSTR(ip,1,20)';
         $sql="SELECT $val, COUNT(*) AS count FROM wikilog $this->where GROUP BY $val ORDER BY $sort LIMIT $limit";
         $this->getSQLTable($sql);
         print('</div>'.PHP_EOL);
@@ -133,10 +133,10 @@ class admin_plugin_wgdokuwikistats extends DokuWiki_Admin_Plugin
     $limit = intval($this->getConf('wgstatslog'));
     if($limit>0)
       {
-      print('<div style="clear:both"></div><div><h2>'.$this->getLang('statslog').'</h2>'.PHP_EOL);
+      print('<div style="clear:both"></div><div><h2>'.$this->getLang('statslog').'</h2><small>'.PHP_EOL);
       $sql="SELECT id,time,page,action,user,ip,system,browser FROM wikilog $this->where ORDER BY id DESC LIMIT $limit";
       $this->getSQLTable($sql);
-      print('</div>'.PHP_EOL);
+      print('</small></div>'.PHP_EOL);
       }
 
     }

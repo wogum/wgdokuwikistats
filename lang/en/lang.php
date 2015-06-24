@@ -7,11 +7,11 @@
 // if set here, the plugin doesn't need to override the getMenuText() method
 $lang['menu'] = 'DokuWiki Simple Statistics'; 
 
-$lang['statspage'] = 'Pages Statistics';
-$lang['statsuser'] = 'Users Statistics';
-$lang['statsip'] = 'IP Addreses Statistics';
-$lang['statssystem'] = 'Systems Statistics';
-$lang['statsbrowser'] = 'Browsers Statistics';
+$lang['statspage'] = 'Pages';
+$lang['statsuser'] = 'Users';
+$lang['statsip'] = 'IP Addreses';
+$lang['statssystem'] = 'Systems';
+$lang['statsbrowser'] = 'Browsers';
 $lang['statslog'] = 'Last log';
 
 $lang['page'] = 'Page';
