@@ -6,12 +6,11 @@
  */
 if(!defined('DOKU_INC')) die();
 if(!defined('WGSTATS')) define ('WGSTATS',DOKU_PLUGIN.'wgdokuwikistats/'); 
-require_once(DOKU_PLUGIN.'action.php');
 
 class action_plugin_wgdokuwikistats extends DokuWiki_Action_Plugin 
 {
   private $db;
-
+    
   function __construct() 
     {
     if(!file_exists(WGSTATS.'.htwiki.db'))
@@ -29,38 +28,26 @@ class action_plugin_wgdokuwikistats extends DokuWiki_Action_Plugin
   /**
    * Register its handlers with the DokuWiki's event controller
    */
-  function register(&$controller) 
+  public function register(Doku_Event_Handler $controller) 
     {
-    $controller->register_hook('TPL_ACT_RENDER', 'BEFORE', $this,'wgcounter');
-    $controller->register_hook('TPL_ACT_RENDER', 'AFTER', $this,'wgprintcounter');
+    $controller->register_hook('TPL_ACT_RENDER', 'BEFORE', $this, 'wgcounter');
+    $controller->register_hook('TPL_ACT_RENDER', 'AFTER', $this, 'wgprintcounter');
     }
 
   /**
-   * adds new data to stats table
+   * adds new data to stats table  
    *
    * @author Wojciech Guminski <wogum@poczta.fm>
    */
-  function wgcounter(&$event, $param)
+  public function wgcounter(Doku_Event $event, $param) 
     {
     global $ID;
     global $ACT;
     global $INFO;
-    
-    if($_SERVER['REQUEST_METHOD']!='GET' && $_SERVER['REQUEST_METHOD']!='POST') return;
+   
+    //if($ACT != 'show') return;
 
     $agent = $_SERVER['HTTP_USER_AGENT'];
-    $ip = $_SERVER['REMOTE_ADDR'];
-    if(substr_count($ip,':')>0) //IPv6 -> long format IPv6
-      {
-      if(strpos($ip,'::')!==false)
-        $ip=str_replace('::', str_repeat(':0', 8-substr_count($ip,':')).':', $ip);
-      if(strpos($ip,':')===0) $ip='0'.$ip;
-      $parts = explode(':',$ip);
-      for($i=0; $i<8; $i++)
-        while(strlen($parts[$i])<4)
-          $parts[$i]='0'.$parts[$i];
-      $ip=implode(':',$parts);
-      }
     $system = $this->db->quote($this->getSystemName($agent));
     $browser = $this->db->quote($this->getBrowserName($agent));
     if(in_array($ACT,array('admin','login','logout','profile','register','resendpwd','index','recent','search','check')))
@@ -80,21 +67,21 @@ class action_plugin_wgdokuwikistats extends DokuWiki_Action_Plugin
     //save
     $sql = 'INSERT INTO wikilog(page,action,user,ip,time,system,browser) VALUES(';
     $sql .= $page.','.$action.','.$user.',';
-    $sql .= $this->db->quote($ip).",'".date('Y-m-d H:i:s')."',";
+    $sql .= $this->db->quote($_SERVER['REMOTE_ADDR']).",'".date('Y-m-d H:i:s')."',";
     $sql .= $system.','.$browser.");";
     $this->db->exec($sql);
     }
 
   /**
-   * prints conter of the ID page
+   * prints conter of the ID page  
    *
    * @author Wojciech Guminski <wogum@poczta.fm>
    */
-  function wgprintcounter(&$event, $param)
+  public function wgprintcounter(Doku_Event $event, $param) 
     {
     global $ID;
     global $ACT;
-
+    
     if($ACT != 'show') return;
     if(!$this->getConf('wgcountershow')) return;
 
@@ -106,15 +93,12 @@ class action_plugin_wgdokuwikistats extends DokuWiki_Action_Plugin
       print(PHP_EOL.'<div class="wgcounter"><a href="'.wl('','do=admin,page='.$this->getPluginName()).'">['.intval($row[0]).']</a></div>'.PHP_EOL);
       }
     }
-
+    
   /**
    * gets system name from HTTP_USER_AGENT
-   *
-   * @input HTTP_USER_AGENT string
-   * @output Short operating system name 
-   *
+   * 
    * @author Wojciech Guminski <wogum@poczta.fm>
-   */
+   */  
   function getSystemName($agent)
     {
     if(strpos($agent,'Symb')>0) $system='Symbian';
@@ -139,24 +123,16 @@ class action_plugin_wgdokuwikistats extends DokuWiki_Action_Plugin
     else if(preg_match('/(Linux)|(Unix)|(Dillo)|(BSD)/i',$agent)) $system='Linux';
     else $system='Unknown';
     return $system;
-    }
-
+    }              
+    
   /**
    * gets pupular browser name from HTTP_USER_AGENT
-   *
-   * @input HTTP_USER_AGENT string
-   * @output Short brower name with version number
-   *
+   * 
    * @author Wojciech Guminski <wogum@poczta.fm>
-   */
+   */  
   function getBrowserName($agent)
     {
-    if(strpos($agent,'Edge')>0)
-      {
-      $browser = 'Edge ';
-      if(preg_match('/Edge.([0-9]+)/i',$agent,$matches)) $browser .= $matches[1];
-      }
-    else if(strpos($agent,'Firefox')>0)
+    if(strpos($agent,'Firefox')>0)
       {
       $browser = 'Firefox ';
       if(preg_match('/Firefox.([0-9]+)/i',$agent,$matches)) $browser .= $matches[1];
@@ -190,8 +166,8 @@ class action_plugin_wgdokuwikistats extends DokuWiki_Action_Plugin
     else if(strpos($agent,'wget')>0) $browser='wget';
     else if(strpos($agent,'NokiaBrowser')>0) $browser='NokiaBrowser';
     else if(strpos($agent,'Safari')>0) $browser='Safari';
-    else $browser='Unknown';
-    return $browser;
+    else $browser='Unknown'; 
+    return $browser; 
     }
-
+    
 }
